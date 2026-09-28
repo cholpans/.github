@@ -1,0 +1,25 @@
+{
+  "folders": [
+    { "path": ".github" }, { "path": "contracts" }, { "path": "api" }, { "path": "ui" },
+    { "path": "web" }, { "path": "infra" }, { "path": "datasets" }, { "path": "docs" },
+    { "path": "desktop" }, { "path": "mobile" }, { "path": "sdk-js" }, { "path": "sdk-python" }
+  ],
+  "settings": {
+    "files.exclude": { "**/.git": true, "**/node_modules": true, "**/.venv": true, "**/dist": true },
+    "search.exclude": { "**/node_modules": true, "**/.venv": true, "**/dist": true, "**/.nuxt": true },
+    "editor.formatOnSave": true,
+    "files.eol": "\n",
+    "git.autofetch": true,
+    "[python]": { "editor.defaultFormatter": "charliermarsh.ruff" },
+    "[go]": { "editor.defaultFormatter": "golang.go" },
+    "[vue]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+    "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" }
+  },
+  "extensions": {
+    "recommendations": [
+      "anthropic.claude-code", "charliermarsh.ruff", "ms-python.python", "golang.go", "vue.volar",
+      "esbenp.prettier-vscode", "dbaeumer.vscode-eslint", "hashicorp.terraform", "bufbuild.vscode-buf",
+      "redhat.vscode-yaml", "42crunch.vscode-openapi", "github.vscode-github-actions"
+    ]
+  }
+}
