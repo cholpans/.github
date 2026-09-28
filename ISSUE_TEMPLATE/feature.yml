@@ -1,0 +1,17 @@
+name: Özellik
+description: Yeni yetenek veya değişiklik
+labels: [feature]
+body:
+  - type: textarea
+    id: problem
+    attributes: {label: Sorun / ihtiyaç}
+    validations: {required: true}
+  - type: textarea
+    id: proposal
+    attributes: {label: Öneri}
+  - type: dropdown
+    id: compliance
+    attributes:
+      label: Yasak yetenekler listesiyle temas
+      options: ["Yok", "Emin değilim (compliance-auditor)", "Var — ADR/istisna süreci gerekir"]
+    validations: {required: true}

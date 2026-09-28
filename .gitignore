@@ -30,3 +30,8 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+# Claude Code — kişisel dosyalar depoya girmez
+.claude/settings.local.json
+CLAUDE.local.md
+.claude/*.local.*
+.claude/cache/

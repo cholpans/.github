@@ -1,0 +1,17 @@
+name: Bug
+description: Beklenmeyen davranış
+labels: [bug]
+body:
+  - type: input
+    id: repo-area
+    attributes: {label: Alan, placeholder: "api/fetcher, web/live-feed…"}
+  - type: textarea
+    id: steps
+    attributes: {label: Yeniden üretme adımları}
+    validations: {required: true}
+  - type: textarea
+    id: expected
+    attributes: {label: Beklenen / gerçekleşen}
+  - type: input
+    id: version
+    attributes: {label: Sürüm / commit}

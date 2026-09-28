@@ -1,0 +1,26 @@
+name: reusable-ci-node
+on:
+  workflow_call:
+    inputs:
+      node-version: {type: string, default: "22"}
+      working-directory: {type: string, default: "."}
+      run-e2e: {type: boolean, default: false}
+permissions: {contents: read, packages: read}
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    defaults: {run: {working-directory: ${{ inputs.working-directory }}}}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: {version: 9}
+      - uses: actions/setup-node@v4
+        with: {node-version: ${{ inputs.node-version }}, cache: pnpm, registry-url: https://npm.pkg.github.com, scope: "@cholpans"}
+      - run: pnpm install --frozen-lockfile
+        env: {NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}}
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test -- --coverage
+      - if: ${{ inputs.run-e2e }}
+        run: pnpm exec playwright install --with-deps chromium && pnpm test:e2e
+      - run: pnpm build

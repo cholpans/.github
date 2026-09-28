@@ -1,0 +1,5 @@
+# Varsayılan sahipler (deponun kendi CODEOWNERS dosyası bunu geçersiz kılar)
+*                      @cholpans/platform
+/claude/               @cholpans/platform @cholpans/compliance
+/.github/workflows/    @cholpans/platform
+SECURITY.md            @cholpans/compliance

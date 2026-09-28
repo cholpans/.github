@@ -1,0 +1,19 @@
+# İsteğe bağlı: PR'larda Claude incelemesi. Kullanan depo bu dosyayı kopyalar; ANTHROPIC_API_KEY org sırrı gerekir.
+name: claude-review
+on:
+  pull_request: {types: [opened, synchronize, ready_for_review]}
+permissions: {contents: read, pull-requests: write, issues: write, id-token: write}
+jobs:
+  review:
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Bu PR'ı depo CLAUDE.md ve .claude/rules kurallarına göre incele. Öncelik: (1) yasak yetenekler ve uyum sınırları,
+            (2) güvenlik, (3) sözleşme uyumluluğu, (4) test kapsamı. Bulguları ciddiyete göre, dosya:satır ile ve kısa yaz.
+          claude_args: "--max-turns 12"
