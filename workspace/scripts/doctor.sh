@@ -7,7 +7,17 @@
 # Çıkış kodu: 0 = FAIL yok, 1 = en az bir FAIL.
 set -uo pipefail
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Kök: CHOLPANS_ROOT, yoksa betikten yukarı çık; içinde .github ve api/contracts klasörü olan ilk üst dizin.
+# (Betik kökteki scripts/ altından da, .github/workspace/scripts/ kaynağından da çalışabilir.)
+ROOT="${CHOLPANS_ROOT:-}"
+if [ -z "$ROOT" ]; then
+  _d="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  while [ "$_d" != "/" ]; do
+    if [ -d "$_d/.github" ] && { [ -d "$_d/api" ] || [ -d "$_d/contracts" ]; }; then ROOT="$_d"; break; fi
+    _d="$(dirname "$_d")"
+  done
+  [ -n "$ROOT" ] || ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+fi
 REPOS=(.github contracts api web ui infra datasets desktop mobile docs sdk-js sdk-python)
 LIVE=0; FIX=0; LIVE_REPO=api
 while [ $# -gt 0 ]; do
