@@ -1,0 +1,66 @@
+name: reusable-ci-contracts
+# Contract: the caller repo defines `pnpm lint`, `pnpm test` and `pnpm breaking`.
+# `pnpm breaking` compares against origin/$BASE_REF and exits 1 when it finds breaking changes;
+# any other non-zero exit is a tool error and always fails the job.
+on:
+  workflow_call:
+    inputs:
+      node-version: {type: string, default: "22"}
+      working-directory: {type: string, default: "."}
+      breaking-mode: {type: string, default: "warn", description: "warn | fail"}
+      buf-version: {type: string, default: "1.73.0"}
+      oasdiff-version: {type: string, default: "1.32.1"}
+permissions: {contents: read, packages: read}
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ${{ inputs.working-directory }}
+    steps:
+      - name: Validate inputs
+        working-directory: .
+        env: {MODE: "${{ inputs.breaking-mode }}"}
+        run: |
+          case "$MODE" in warn|fail) ;; *) echo "::error::breaking-mode must be warn or fail"; exit 1 ;; esac
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: pnpm/action-setup@v4
+        with: {version: 9}
+      - uses: actions/setup-node@v4
+        with: {node-version: "${{ inputs.node-version }}", cache: pnpm, cache-dependency-path: "${{ inputs.working-directory }}/pnpm-lock.yaml", registry-url: "https://npm.pkg.github.com", scope: "@cholpans"}
+      - uses: bufbuild/buf-action@v1
+        with: {version: "${{ inputs.buf-version }}", setup_only: true}
+      - name: Install oasdiff
+        working-directory: ${{ runner.temp }}
+        env: {V: "${{ inputs.oasdiff-version }}"}
+        run: |
+          curl -fsSLO "https://github.com/oasdiff/oasdiff/releases/download/v${V}/oasdiff_${V}_linux_amd64.tar.gz"
+          curl -fsSLO "https://github.com/oasdiff/oasdiff/releases/download/v${V}/checksums.txt"
+          grep " oasdiff_${V}_linux_amd64.tar.gz\$" checksums.txt | sha256sum -c -
+          tar -xzf "oasdiff_${V}_linux_amd64.tar.gz" oasdiff
+          sudo install oasdiff /usr/local/bin/oasdiff
+      - run: pnpm install --frozen-lockfile
+        env: {NODE_AUTH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"}
+      - run: pnpm lint
+      - run: pnpm test
+      - name: Breaking-change check
+        if: ${{ github.event_name == 'pull_request' }}
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          MODE: ${{ inputs.breaking-mode }}
+        run: |
+          set +e
+          pnpm breaking
+          code=$?
+          set -e
+          if [ "$code" -eq 0 ]; then exit 0; fi
+          if [ "$code" -ne 1 ]; then echo "::error::breaking check failed to run (exit $code)"; exit "$code"; fi
+          if [ "$MODE" = "fail" ]; then echo "::error::breaking changes detected"; exit 1; fi
+          echo "::warning::breaking changes detected (breaking-mode=warn)"
+          if git diff "origin/${BASE_REF}...HEAD" -- CHANGELOG.md | grep -Eq '^\+.*BREAKING:'; then
+            echo "CHANGELOG.md has a BREAKING: entry" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::error::breaking changes need a 'BREAKING:' entry added to CHANGELOG.md"
+            exit 1
+          fi
