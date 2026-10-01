@@ -56,5 +56,6 @@ Bu belgeleri bütünüyle okuma; `/plan-context <konu>` becerisiyle ilgili böl�
 
 ## Faz durumu
 
-Faz 1 (ay 0–6) — ilk ayak API + Web: `contracts`, `api`, `web`, `ui`, `infra`, `.github` aktif; `datasets` ay 2.
+Faz 1 (ay 0–8) — hedef: yerelde Docker ile uçtan uca çalışan platform. İlk ayak API + Web: `contracts`, `api`, `web`, `ui`, `infra`, `.github` aktif; `datasets` ay 2.
 `desktop`, `docs` portalı, `sdk-*` Faz 2; `mobile` Faz 3. Boş depolara kod yazma; önce ilgili ADR/karar.
+Üyelik, faturalama, Zitadel/SSO/SCIM, çok kiracılı T1–T3, ISO/SOC "Ticari katman"dır: en sona bırakıldı (Faz 3 sonrası). Şimdilik yalnızca OIDC/JWT doğrulaması ve şemada `tenant_id`; bunlar için kod yazma.
